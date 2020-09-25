@@ -6,7 +6,7 @@ var util = require('./util.js');
 
 var SubscriptionCounter = function(){
     var count = 0;
-    var padding = 'deadbeefcafebabe';
+    var padding = '0000000000000000';
     return {
         next: function(){
             count++;

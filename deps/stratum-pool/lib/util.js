@@ -107,31 +107,6 @@ Used to format height and date when putting into script signature:
  https://en.bitcoin.it/wiki/Script
  */
 exports.serializeNumber = function(n){
-
-    /* Old version that is bugged
-    if (n < 0xfd){
-        var buff = new Buffer(2);
-        buff[0] = 0x1;
-        buff.writeUInt8(n, 1);
-        return buff;
-    }
-    else if (n <= 0xffff){
-        var buff = new Buffer(4);
-        buff[0] = 0x3;
-        buff.writeUInt16LE(n, 1);
-        return buff;
-    }
-    else if (n <= 0xffffffff){
-        var buff = new Buffer(5);
-        buff[0] = 0x4;
-        buff.writeUInt32LE(n, 1);
-        return buff;
-    }
-    else{
-        return Buffer.concat([new Buffer([0x9]), binpack.packUInt64(n, 'little')]);
-    }*/
-
-    //New version from TheSeven
     if (n >= 1 && n <= 16) return new Buffer([0x50 + n]);
     var l = 1;
     var buff = new Buffer(9);
@@ -143,7 +118,6 @@ exports.serializeNumber = function(n){
     buff.writeUInt8(l, 0);
     buff.writeUInt8(n, l++);
     return buff.slice(0, l);
-
 };
 
 
@@ -233,25 +207,6 @@ exports.range = function(start, stop, step){
     }
     return result;
 };
-
-
-
-
-/*
- For POS coins - used to format wallet address for use in generation transaction's output
- */
-exports.pubkeyToScript = function(key){
-    if (key.length !== 66) {
-        console.error('Invalid pubkey: ' + key);
-        throw new Error();
-    }
-    var pubkey = new Buffer(35);
-    pubkey[0] = 0x21;
-    pubkey[34] = 0xac;
-    new Buffer(key, 'hex').copy(pubkey, 1);
-    return pubkey;
-};
-
 
 exports.miningKeyToScript = function(key){
     var keyBuffer = new Buffer(key, 'hex');

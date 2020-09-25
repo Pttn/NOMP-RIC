@@ -108,9 +108,6 @@ var BlockTemplate = module.exports = function BlockTemplate(jobId, rpcData, pool
             this.transactionData,
 
             getVoteData(),
-
-            //POS coins require a zero byte appended to block which the daemon replaces with the signature
-            new Buffer(reward === 'POS' ? [0] : [])
         ]);
     };
 

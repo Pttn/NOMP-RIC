@@ -11,7 +11,6 @@ var CliListener = require('./libs/cliListener.js');
 var PoolWorker = require('./libs/poolWorker.js');
 var PaymentProcessor = require('./libs/paymentProcessor.js');
 var Website = require('./libs/website.js');
-var ProfitSwitch = require('./libs/profitSwitch.js');
 
 var algos = require('stratum-pool/lib/algoProperties.js');
 
@@ -78,9 +77,6 @@ if (cluster.isWorker){
             break;
         case 'website':
             new Website(logger);
-            break;
-        case 'profitSwitch':
-            new ProfitSwitch(logger);
             break;
     }
 
@@ -403,41 +399,10 @@ var startWebsite = function(){
     });
 };
 
-
-var startProfitSwitch = function(){
-
-    if (!portalConfig.profitSwitch || !portalConfig.profitSwitch.enabled){
-        //logger.error('Master', 'Profit', 'Profit auto switching disabled');
-        return;
-    }
-
-    var worker = cluster.fork({
-        workerType: 'profitSwitch',
-        pools: JSON.stringify(poolConfigs),
-        portalConfig: JSON.stringify(portalConfig)
-    });
-    worker.on('exit', function(code, signal){
-        logger.error('Master', 'Profit', 'Profit switching process died, spawning replacement...');
-        setTimeout(function(){
-            startWebsite(portalConfig, poolConfigs);
-        }, 2000);
-    });
-};
-
-
-
 (function init(){
-
     poolConfigs = buildPoolConfigs();
-
     spawnPoolWorkers();
-
     startPaymentProcessor();
-
     startWebsite();
-
-    startProfitSwitch();
-
     startCliListener();
-
 })();

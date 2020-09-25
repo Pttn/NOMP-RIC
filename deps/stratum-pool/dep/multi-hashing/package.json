@@ -1,21 +1,14 @@
 {
     "name": "multi-hashing",
     "version": "1.0.0",
-    "main": "multihashing",
     "author": {
-        "name": "Matthew Little",
-        "email": "zone117x@gmail.com"
+        "name": "Matthew Little"
     },
     "contributors": [
         "Pttn"
     ],
-    "repository": {
-        "type": "git",
-        "url": "https://github.com/zone117x/node-multi-hashing.git"
-    },
     "scripts": {
-        "build": "node-gyp rebuild",
-        "test": "mocha --require babel-register --gc-global tests/test.vectors.js"
+        "build": "node-gyp rebuild"
     },
     "dependencies": {
         "bindings": "*",
@@ -25,22 +18,5 @@
         "PoW",
         "Riecoin",
         "Prime Constellations"
-    ],
-    "devDependencies": {
-        "babel-register": "^6.26.0",
-        "mocha": "^7.1.1"
-    },
-    "release": {
-        "branches": [
-            "master"
-        ],
-        "plugins": [
-            "@semantic-release/commit-analyzer",
-            "@semantic-release/release-notes-generator",
-            "@semantic-release/npm",
-            "@semantic-release/github",
-            "@semantic-release/changelog",
-            "@semantic-release/git"
-        ]
-    }
+    ]
 }

@@ -42,54 +42,6 @@ module.exports = function(logger){
                     pools[poolTarget].processBlockNotify(message.hash, 'blocknotify script');
 
                 break;
-
-            // IPC message for pool switching
-            case 'coinswitch':
-                var logSystem = 'Proxy';
-                var logComponent = 'Switch';
-                var logSubCat = 'Thread ' + (parseInt(forkId) + 1);
-
-                var switchName = message.switchName;
-
-                var newCoin = message.coin;
-
-                var algo = poolConfigs[newCoin].coin.algorithm;
-
-                var newPool = pools[newCoin];
-                var oldCoin = proxySwitch[switchName].currentPool;
-                var oldPool = pools[oldCoin];
-                var proxyPorts = Object.keys(proxySwitch[switchName].ports);
-
-                if (newCoin == oldCoin) {
-                    logger.debug(logSystem, logComponent, logSubCat, 'Switch message would have no effect - ignoring ' + newCoin);
-                    break;
-                }
-
-                logger.debug(logSystem, logComponent, logSubCat, 'Proxy message for ' + algo + ' from ' + oldCoin + ' to ' + newCoin);
-
-                if (newPool) {
-                    oldPool.relinquishMiners(
-                        function (miner, cback) { 
-                            // relinquish miners that are attached to one of the "Auto-switch" ports and leave the others there.
-                            cback(proxyPorts.indexOf(miner.client.socket.localPort.toString()) !== -1)
-                        }, 
-                        function (clients) {
-                            newPool.attachMiners(clients);
-                        }
-                    );
-                    proxySwitch[switchName].currentPool = newCoin;
-
-                    redisClient.hset('proxyState', algo, newCoin, function(error, obj) {
-                        if (error) {
-                            logger.error(logSystem, logComponent, logSubCat, 'Redis error writing proxy config: ' + JSON.stringify(err))
-                        }
-                        else {
-                            logger.debug(logSystem, logComponent, logSubCat, 'Last proxy state saved to redis for ' + algo);
-                        }
-                    });
-
-                }
-                break;
         }
     });
 
@@ -207,7 +159,6 @@ module.exports = function(logger){
         }).on('banIP', function(ip, worker){
             process.send({type: 'banIP', ip: ip});
         }).on('started', function(){
-            _this.setDifficultyForProxyPort(pool, poolOptions.coin.name, poolOptions.coin.algorithm);
         });
 
         pool.start();
@@ -301,35 +252,5 @@ module.exports = function(logger){
             }
         });
         return foundCoin;
-    };
-
-    //
-    // Called when stratum pool emits its 'started' event to copy the initial diff and vardiff 
-    // configuation for any proxy switching ports configured into the stratum pool object.
-    //
-    this.setDifficultyForProxyPort = function(pool, coin, algo) {
-
-        logger.debug(logSystem, logComponent, algo, 'Setting proxy difficulties after pool start');
-
-        Object.keys(portalConfig.switching).forEach(function(switchName) {
-            if (!portalConfig.switching[switchName].enabled) return;
-
-            var switchAlgo = portalConfig.switching[switchName].algorithm;
-            if (pool.options.coin.algorithm !== switchAlgo) return;
-
-            // we know the switch configuration matches the pool's algo, so setup the diff and 
-            // vardiff for each of the switch's ports
-            for (var port in portalConfig.switching[switchName].ports) {
-
-                if (portalConfig.switching[switchName].ports[port].varDiff)
-                    pool.setVarDiff(port, portalConfig.switching[switchName].ports[port].varDiff);
-
-                if (portalConfig.switching[switchName].ports[port].diff){
-                    if (!pool.options.ports.hasOwnProperty(port)) 
-                        pool.options.ports[port] = {};
-                    pool.options.ports[port].diff = portalConfig.switching[switchName].ports[port].diff;
-                }
-            }
-        });
     };
 };

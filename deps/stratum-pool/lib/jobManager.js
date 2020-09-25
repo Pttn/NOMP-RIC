@@ -67,43 +67,14 @@ var JobManager = module.exports = function JobManager(options){
     var hashDigest = algos[options.coin.algorithm].hash(options.coin);
 
     var coinbaseHasher = (function(){
-        switch(options.coin.algorithm){
-            case 'keccak':
-            case 'fugue':
-            case 'groestl':
-                if (options.coin.normalHashing === true)
-                    return util.sha256d;
-                else
-                    return util.sha256;
-            default:
-                return util.sha256d;
-        }
+        return util.sha256d;
     })();
 
 
     var blockHasher = (function () {
-        switch (options.coin.algorithm) {
-            case 'scrypt':
-                if (options.coin.reward === 'POS') {
-                    return function (d) {
-                        return util.reverseBuffer(hashDigest.apply(this, arguments));
-                    };
-                }
-            case 'scrypt-jane':
-                if (options.coin.reward === 'POS') {
-                    return function (d) {
-                        return util.reverseBuffer(hashDigest.apply(this, arguments));
-                    };
-                }
-            case 'scrypt-n':
-                return function (d) {
-                    return util.reverseBuffer(util.sha256d(d));
-                };
-            default:
-                return function () {
-                    return util.reverseBuffer(hashDigest.apply(this, arguments));
-                };
-        }
+        return function () {
+            return util.reverseBuffer(hashDigest.apply(this, arguments));
+        };
     })();
 
     this.updateCurrentJob = function(rpcData){
@@ -228,12 +199,7 @@ var JobManager = module.exports = function JobManager(options){
         //Check if share is a block candidate (matched network difficulty)
         if (job.target.ge(headerBigNum)){
             blockHex = job.serializeBlock(headerBuffer, coinbaseBuffer).toString('hex');
-            if (options.coin.algorithm === 'blake' || options.coin.algorithm === 'neoscrypt') {                
-                blockHash = util.reverseBuffer(util.sha256d(headerBuffer, nTime)).toString('hex');
-            }
-            else {
-            	blockHash = blockHasher(headerBuffer, nTime).toString('hex');
-            }
+            blockHash = blockHasher(headerBuffer, nTime).toString('hex');
         }
         else {
             if (options.emitInvalidBlockHashes)

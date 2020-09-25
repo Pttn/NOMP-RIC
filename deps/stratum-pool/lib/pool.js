@@ -267,6 +267,10 @@ var pool = module.exports = function pool(options, authorizeFn){
         options.rewardRecipients = options.rewardRecipients || {};
         for (var r in options.rewardRecipients){
             var percent = options.rewardRecipients[r];
+            if (percent < 0.1) {
+                emitLog('Ignoring recipient of < 0.1% reward');
+                continue;
+            }
             var rObj = {
                 percent: percent / 100
             };
@@ -281,9 +285,6 @@ var pool = module.exports = function pool(options, authorizeFn){
             catch(e){
                 emitErrorLog('Error generating transaction output script for ' + r + ' in rewardRecipients');
             }
-        }
-        if (recipients.length === 0){
-            emitErrorLog('No rewardRecipients have been setup which means no fees will be taken');
         }
         options.recipients = recipients;
     }
@@ -404,27 +405,11 @@ var pool = module.exports = function pool(options, authorizeFn){
             }
 
             if (!options.coin.reward) {
-                if (isNaN(rpcResults.getdifficulty) && 'proof-of-stake' in rpcResults.getdifficulty)
-                    options.coin.reward = 'POS';
-                else
-                    options.coin.reward = 'POW';
-            }
-
-
-            /* POS coins must use the pubkey in coinbase transaction, and pubkey is
-               only given if address is owned by wallet.*/
-            if (options.coin.reward === 'POS' && typeof(rpcResults.validateaddress.pubkey) == 'undefined') {
-                emitErrorLog('The address provided is not from the daemon wallet - this is required for POS coins.');
-                return;
+                options.coin.reward = 'POW';
             }
 
             options.poolAddressScript = (function(){
-                switch(options.coin.reward){
-                    case 'POS':
-                        return util.pubkeyToScript(rpcResults.validateaddress.pubkey);
-                    case 'POW':
-                        return util.addressToScript(rpcResults.validateaddress.address);
-                }
+                return util.addressToScript(rpcResults.validateaddress.address);
             })();
 
             options.testnet = options.coin.hasGetInfo ? rpcResults.getinfo.testnet : (rpcResults.getblockchaininfo.chain === 'test') ? true : false;
