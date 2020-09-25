@@ -239,7 +239,7 @@ exports.CreateGeneration = function(rpcData, publicKey, extraNoncePlaceholder, r
 
     //For coins that support/require transaction comments
     var txComment = txMessages === true ?
-        util.serializeString('https://github.com/zone117x/node-stratum') :
+        util.serializeString('https://github.com/Pttn/NOMP-RIC') :
         new Buffer([]);
 
 
@@ -250,7 +250,7 @@ exports.CreateGeneration = function(rpcData, publicKey, extraNoncePlaceholder, r
         new Buffer([extraNoncePlaceholder.length])
     ]);
 
-    var scriptSigPart2 = util.serializeString('/nodeStratum/');
+    var scriptSigPart2 = util.serializeString('/NOMP-RIC/');
 
     var p1 = Buffer.concat([
         util.packUInt32LE(txVersion),

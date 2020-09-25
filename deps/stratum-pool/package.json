@@ -8,25 +8,20 @@
         "pool",
         "server",
         "poolserver",
-        "bitcoin",
-        "litecoin",
-        "scrypt"
+        "Riecoin"
     ],
-    "homepage": "https://github.com/zone117x/node-stratum-pool",
+    "homepage": "https://github.com/Pttn/NOMP-RIC",
     "bugs": {
-        "url": "https://github.com/zone117x/node-stratum-pool/issues"
+        "url": "https://github.com/Pttn/NOMP-RIC/issues"
     },
     "license": "GPL-2.0",
     "author": "Matthew Little",
     "contributors": [
         "vekexasia",
-        "TheSeven"
+        "TheSeven",
+        "Pttn"
     ],
     "main": "lib/index.js",
-    "repository": {
-        "type": "git",
-        "url": "https://github.com/zone117x/node-stratum-pool.git"
-    },
     "dependencies": {
         "multi-hashing": "file:dep/multi-hashing",
         "bignum": "0.12.5",

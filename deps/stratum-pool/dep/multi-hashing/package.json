@@ -6,6 +6,9 @@
         "name": "Matthew Little",
         "email": "zone117x@gmail.com"
     },
+    "contributors": [
+        "Pttn"
+    ],
     "repository": {
         "type": "git",
         "url": "https://github.com/zone117x/node-multi-hashing.git"
@@ -19,20 +22,9 @@
         "nan": "^2.14.1"
     },
     "keywords": [
-        "argon2",
-        "scrypt",
-        "scryptjane",
-        "script-n",
-        "x11",
-        "quark",
-        "keccak_hash",
-        "skein",
-        "bcrypt",
-        "keccak",
-        "blake",
-        "shavite",
-        "fugue",
-        "sha1"
+        "PoW",
+        "Riecoin",
+        "Prime Constellations"
     ],
     "devDependencies": {
         "babel-register": "^6.26.0",

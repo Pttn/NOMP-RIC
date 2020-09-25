@@ -1,26 +1,25 @@
 {
-    "name": "node-open-mining-portal",
-    "version": "0.0.4",
-    "description": "An extremely efficient, highly scalable, all-in-one, easy to setup cryptocurrency mining pool",
+    "name": "NOMP-RIC",
+    "version": "0.20.0",
+    "description": "An extremely efficient, highly scalable, all-in-one, easy to setup Riecoin mining pool",
     "keywords": [
         "stratum",
         "mining",
         "pool",
         "server",
         "poolserver",
-        "bitcoin",
-        "litecoin",
-        "scrypt"
+        "Riecoin"
     ],
-    "homepage": "https://github.com/zone117x/node-open-mining-portal",
+    "homepage": "https://github.com/Pttn/NOMP-RIC",
     "bugs": {
-        "url": "https://github.com/zone117x/node-open-mining-portal/issues"
+        "url": "https://github.com/Pttn/NOMP-RIC/issues"
     },
     "license": "GPL-2.0",
     "author": "Matthew Little",
     "contributors": [
         "vekexasia",
-        "TheSeven"
+        "TheSeven",
+        "Pttn"
     ],
     "main": "init.js",
     "bin": {
@@ -28,7 +27,7 @@
     },
     "repository": {
         "type": "git",
-        "url": "https://github.com/zone117x/node-open-mining-portal.git"
+        "url": "https://github.com/Pttn/NOMP-RIC.git"
     },
     "dependencies": {
         "stratum-pool": "file:deps/stratum-pool",
