@@ -1,54 +1,58 @@
-<style>
+<h1>Statistics</h1>
+<h2>Pools</h2>
+<table style="width: 100%; text-align: left;">
+	<thead>
+		<tr>
+			<th>Pool</th>
+			<th>Algo</th>
+			<th>Workers</th>
+			<th>Valid Shares</th>
+			<th>Invalid Shares</th>
+			<th>Total Blocks</th>
+			<th>Pending</th>
+			<th>Confirmed</th>
+			<th>Orphaned</th>
+			<th>Hashrate</th>
+		</tr>
+	</thead>
+	{{ for(var pool in it.stats.pools) { }}
+	<tr>
+		<td>{{=it.stats.pools[pool].name}}</td>
+		<td>{{=it.stats.pools[pool].algorithm}}</td>
+		<td>{{=Object.keys(it.stats.pools[pool].workers).length}}</td>
+		<td>{{=it.stats.pools[pool].poolStats.validShares}}</td>
+		<td>{{=it.stats.pools[pool].poolStats.invalidShares}}</td>
+		<td>{{=it.stats.pools[pool].poolStats.validBlocks}}</td>
+		<td>{{=it.stats.pools[pool].blocks.pending}}</td>
+		<td>{{=it.stats.pools[pool].blocks.confirmed}}</td>
+		<td>{{=it.stats.pools[pool].blocks.orphaned}}</td>
+		<td>{{=it.stats.pools[pool].hashrateString}}</td>
+	</tr>
+	{{ } }}
+</table>
 
-    #topCharts{
-        padding: 18px;
-    }
-
-    #topCharts > div > div > svg{
-        display: block;
-        height: 280px;
-    }
-
-    .chartWrapper{
-        border: solid 1px #c7c7c7;
-        border-radius: 5px;
-        padding: 5px;
-        margin-bottom: 18px;
-    }
-
-    .chartLabel{
-        font-size: 1.2em;
-        text-align: center;
-        padding: 4px;
-    }
-
-    .chartHolder{
-
-    }
-
-</style>
-
-<div id="topCharts">
-
-    <div class="chartWrapper">
-        <div class="chartLabel">Workers Per Pool</div>
-        <div class="chartHolder"><svg id="poolWorkers"/></div>
-    </div>
-
-    <div class="chartWrapper">
-        <div class="chartLabel">Hashrate Per Pool</div>
-        <div class="chartHolder"><svg id="poolHashrate"/></div>
-    </div>
-
-    <div class="chartWrapper">
-        <div class="chartLabel">Blocks Pending Per Pool</div>
-        <div class="chartHolder"><svg id="poolBlocks"/></div>
-    </div>
-
-</div>
-
-
-
-<script>
-    document.querySelector('main').appendChild(document.createElement('script')).src = '/static/stats.js';
-</script>
+<h2>Workers</h2>
+{{ for(var pool in it.stats.pools) { }}
+<h3>{{=it.stats.pools[pool].name}}</h3>
+<table style="width: 100%; text-align: left;">
+	<thead>
+		<tr>
+			<th>Address</th>
+			<th>Shares</th>
+			<th>Invalid shares</th>
+			<th>Efficiency</th>
+			<th>Hashrate</th>
+		</tr>
+	</thead>
+	{{ for(var worker in it.stats.pools[pool].workers) { }}
+	{{var workerstat = it.stats.pools[pool].workers[worker];}}
+	<tr>
+		<td>{{=worker}}</td>
+		<td>{{=Math.floor(workerstat.shares)}}</td>
+		<td>{{=Math.floor(workerstat.invalidshares)}}</td>
+		<td>{{? workerstat.shares > 0}} {{=Math.floor(10000*workerstat.shares/(workerstat.shares + workerstat.invalidshares))/100}}% {{??}} 0% {{?}}</td>
+		<td>{{=workerstat.hashrateString}}</td>
+	</tr>
+	{{ } }}
+</table>
+{{ } }}

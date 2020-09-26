@@ -1,5 +1,1 @@
 node_modules/
-.idea/
-config.json
-pool_configs/*.json
-!pool_configs/litecoin_example.json

@@ -1,0 +1,88 @@
+{
+	/* Specifies the level of log output verbosity. Anything more severe than the level specified
+	   will also be logged. */
+	"logLevel": "debug", //or "warning", "error"
+	
+	/* By default NOMP logs to console and gives pretty colors. If you direct that output to a
+	   log file then disable this feature to avoid nasty characters in your log file. */
+	"logColors": true,
+	
+	/* The NOMP CLI (command-line interface) will listen for commands on this port. For example,
+	   blocknotify messages are sent to NOMP through this. */
+	"cliPort": 17117,
+	
+	/* By default 'forks' is set to "auto" which will spawn one process/fork/worker for each CPU
+	   core in your system. Each of these workers will run a separate instance of your pool(s),
+	   and the kernel will load balance miners using these forks. Optionally, the 'forks' field
+	   can be a number for how many forks will be spawned. */
+	"clustering": {
+		"enabled": true,
+		"forks": "auto"
+	},
+	
+	/* Pool config file will inherit these default values if they are not set. */
+	"defaultPoolConfigs": {
+		/* Poll RPC daemons for new blocks every this many milliseconds. */
+		"blockRefreshInterval": 500,
+		
+		/* If no new blocks are available for this many seconds update and rebroadcast job. */
+		"jobRebroadcastTimeout": 30,
+		
+		/* Disconnect workers that haven't submitted shares for this many seconds. */
+		"connectionTimeout": 300,
+		
+		/* (For MPOS mode) Store the block hashes for shares that aren't block candidates. */
+		"emitInvalidBlockHashes": false,
+		
+		/* This option will only authenticate miners using an address or mining key. */
+		"validateWorkerUsername": true,
+		
+		/* Enable for client IP addresses to be detected when using a load balancer with TCP
+		   proxy protocol enabled, such as HAProxy with 'send-proxy' param:
+		   http://haproxy.1wt.eu/download/1.5/doc/configuration.txt */
+		"tcpProxyProtocol": false,
+		
+		/* If under low-diff share attack we can ban their IP to reduce system/network load. If
+		   running behind HAProxy be sure to enable 'tcpProxyProtocol', otherwise you'll end up
+		   banning your own IP address (and therefore all workers). */
+		"banning": {
+			"enabled": true,
+			"time": 3600, //How many seconds to ban worker for
+			"invalidPercent": 5, //What percent of invalid shares triggers ban
+			"checkThreshold": 300, //Perform check when this many shares have been submitted
+			"purgeInterval": 1800 //Every this many seconds clear out the list of old bans
+		},
+		
+		/* Used for storing share and block submission data and payment processing. */
+		"redis": {
+			"host": "127.0.0.1",
+			"port": 6379
+		}
+	},
+	
+	/* This is the front-end. Its not finished. When it is finished, this comment will say so. */
+	"website": {
+		"enabled": true,
+		/* If you are using a reverse-proxy like nginx to display the website then set this to
+		   127.0.0.1 to not expose the port. */
+		"host": "0.0.0.0",
+		"port": 8000,
+		/* Used for displaying stratum connection data on the Getting Started page. */
+		"stratumHost": "pool.Riecoin.dev",
+		"stats": {
+			/* Gather stats to broadcast to page viewers and store in redis for historical stats
+			   every this many seconds. */
+			"updateInterval": 5,
+			/* How many seconds to hold onto historical stats. Currently set to 24 hours. */
+			"historicalRetention": 86400,
+			/* How many seconds worth of shares should be gathered to generate hashrate. */
+			"hashrateWindow": 300
+		}
+	},
+	
+	/* Redis instance of where to store global portal data such as historical stats, proxy states, etc.. */
+	"redis": {
+		"host": "127.0.0.1",
+		"port": 6379
+	}
+}

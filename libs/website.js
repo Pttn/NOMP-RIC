@@ -16,9 +16,7 @@ var util = require('stratum-pool/lib/util.js');
 
 var api = require('./api.js');
 
-
 module.exports = function(logger){
-
     dot.templateSettings.strip = false;
 
     var portalConfig = JSON.parse(process.env.portalConfig);
@@ -31,17 +29,11 @@ module.exports = function(logger){
 
     var logSystem = 'Website';
 
-
     var pageFiles = {
         'index.html': 'index',
         'home.html': '',
-        'getting_started.html': 'getting_started',
         'stats.html': 'stats',
-        'tbs.html': 'tbs',
-        'workers.html': 'workers',
         'api.html': 'api',
-        'admin.html': 'admin',
-        'mining_key.html': 'mining_key'
     };
 
     var pageTemplates = {};
@@ -51,7 +43,6 @@ module.exports = function(logger){
 
     var keyScriptTemplate = '';
     var keyScriptProcessed = '';
-
 
     var processTemplates = function(){
 
@@ -73,8 +64,6 @@ module.exports = function(logger){
 
         //logger.debug(logSystem, 'Stats', 'Website updated to latest stats');
     };
-
-
 
     var readPageFiles = function(files){
         async.each(files, function(fileName, callback){
@@ -123,91 +112,6 @@ module.exports = function(logger){
 
     setInterval(buildUpdatedWebsite, websiteConfig.stats.updateInterval * 1000);
 
-
-    var buildKeyScriptPage = function(){
-        async.waterfall([
-            function(callback){
-                var client = redis.createClient(portalConfig.redis.port, portalConfig.redis.host);
-                client.hgetall('coinVersionBytes', function(err, coinBytes){
-                    if (err){
-                        client.quit();
-                        return callback('Failed grabbing coin version bytes from redis ' + JSON.stringify(err));
-                    }
-                    callback(null, client, coinBytes || {});
-                });
-            },
-            function (client, coinBytes, callback){
-                var enabledCoins = Object.keys(poolConfigs).map(function(c){return c.toLowerCase()});
-                var missingCoins = [];
-                enabledCoins.forEach(function(c){
-                    if (!(c in coinBytes))
-                        missingCoins.push(c);
-                });
-                callback(null, client, coinBytes, missingCoins);
-            },
-            function(client, coinBytes, missingCoins, callback){
-                var coinsForRedis = {};
-                async.each(missingCoins, function(c, cback){
-                    var coinInfo = (function(){
-                        for (var pName in poolConfigs){
-                            if (pName.toLowerCase() === c)
-                                return {
-                                    daemon: poolConfigs[pName].paymentProcessing.daemon,
-                                    address: poolConfigs[pName].address
-                                }
-                        }
-                    })();
-                    var daemon = new Stratum.daemon.interface([coinInfo.daemon], function(severity, message){
-                        logger[severity](logSystem, c, message);
-                    });
-                    daemon.cmd('dumpprivkey', [coinInfo.address], function(result){
-                        if (result[0].error){
-                            logger.error(logSystem, c, 'Could not dumpprivkey for ' + c + ' ' + JSON.stringify(result[0].error));
-                            cback();
-                            return;
-                        }
-
-                        var vBytePub = util.getVersionByte(coinInfo.address)[0];
-                        var vBytePriv = util.getVersionByte(result[0].response)[0];
-
-                        coinBytes[c] = vBytePub.toString() + ',' + vBytePriv.toString();
-                        coinsForRedis[c] = coinBytes[c];
-                        cback();
-                    });
-                }, function(err){
-                    callback(null, client, coinBytes, coinsForRedis);
-                });
-            },
-            function(client, coinBytes, coinsForRedis, callback){
-                if (Object.keys(coinsForRedis).length > 0){
-                    client.hmset('coinVersionBytes', coinsForRedis, function(err){
-                        if (err)
-                            logger.error(logSystem, 'Init', 'Failed inserting coin byte version into redis ' + JSON.stringify(err));
-                        client.quit();
-                    });
-                }
-                else{
-                    client.quit();
-                }
-                callback(null, coinBytes);
-            }
-        ], function(err, coinBytes){
-            if (err){
-                logger.error(logSystem, 'Init', err);
-                return;
-            }
-            try{
-                keyScriptTemplate = dot.template(fs.readFileSync('website/key.html', {encoding: 'utf8'}));
-                keyScriptProcessed = keyScriptTemplate({coins: coinBytes});
-            }
-            catch(e){
-                logger.error(logSystem, 'Init', 'Failed to read key.html file');
-            }
-        });
-
-    };
-    buildKeyScriptPage();
-
     var getPage = function(pageId){
         if (pageId in pageProcessed){
             var requestedPage = pageProcessed[pageId];
@@ -226,10 +130,7 @@ module.exports = function(logger){
 
     };
 
-
-
     var app = express();
-
 
     app.use(bodyParser.json());
 
@@ -242,30 +143,11 @@ module.exports = function(logger){
         next();
     });
 
-    app.get('/key.html', function(req, res, next){
-        res.end(keyScriptProcessed);
-    });
-
     app.get('/:page', route);
     app.get('/', route);
 
     app.get('/api/:method', function(req, res, next){
         portalApi.handleApiRequest(req, res, next);
-    });
-
-    app.post('/api/admin/:method', function(req, res, next){
-        if (portalConfig.website
-            && portalConfig.website.adminCenter
-            && portalConfig.website.adminCenter.enabled){
-            if (portalConfig.website.adminCenter.password === req.body.password)
-                portalApi.handleAdminApiRequest(req, res, next);
-            else
-                res.send(401, JSON.stringify({error: 'Incorrect Password'}));
-
-        }
-        else
-            next();
-
     });
 
     app.use(compress());
@@ -285,6 +167,4 @@ module.exports = function(logger){
         logger.error(logSystem, 'Server', 'Could not start website on ' + portalConfig.website.host + ':' + portalConfig.website.port
             +  ' - its either in use or you do not have permission');
     }
-
-
 };
