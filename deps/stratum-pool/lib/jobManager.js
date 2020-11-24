@@ -70,10 +70,20 @@ var JobManager = module.exports = function JobManager(options){
         return util.sha256d;
     })();
 
+    this.currentDifficulty = function() {
+        return Math.max(this.currentJob.rpcData.patterns[0].length - 2, 3);
+    };
 
     var blockHasher = (function () {
-        return function () {
+        /*return function () {
             return util.reverseBuffer(hashDigest.apply(this, arguments));
+        };*/
+        return function (headerBuffer, powversion) {
+            if (powversion == -1)
+                var headerBufferForHash = Buffer.concat([headerBuffer.slice(0, 68), headerBuffer.slice(76, 80), headerBuffer.slice(68, 76), headerBuffer.slice(80, 112)]); // The hash is done after swapping nTime and nBits
+            else
+                var headerBufferForHash = headerBuffer;
+            return util.reverseBuffer(util.sha256d(headerBufferForHash));
         };
     })();
 
@@ -158,17 +168,21 @@ var JobManager = module.exports = function JobManager(options){
             return shareError([21, 'job not found']);
         }
 
-        if (nTime.length !== 8) {
-            return shareError([20, 'incorrect size of ntime']);
+        /*if (nTime.length !== 8) {
+            return shareError([20, 'incorrect size of ntime']);*/
+        if (nTime.length !== 16) {
+            return shareError([20, 'incorrect size of ntime (must be 16 hex digits)']);
         }
 
         var nTimeInt = parseInt(nTime, 16);
-        if (nTimeInt < job.rpcData.curtime || nTimeInt > submitTime + 7200) {
-            return shareError([20, 'ntime out of range']);
+        if (nTimeInt < job.rpcData.curtime || nTimeInt > submitTime + 15) {
+            return shareError([20, 'ntime out of range (ensure that your clock is correctly set)']);
         }
 
-        if (nonce.length !== 8) {
-            return shareError([20, 'incorrect size of nonce']);
+        /*if (nonce.length !== 8) {
+            return shareError([20, 'incorrect size of nonce']);*/
+        if (nonce.length !== 64) {
+            return shareError([20, 'incorrect size of nOffset (must be 64 hex digits)']);
         }
 
         if (!job.registerSubmit(extraNonce1, extraNonce2, nTime, nonce)) {
@@ -183,30 +197,47 @@ var JobManager = module.exports = function JobManager(options){
         var coinbaseHash = coinbaseHasher(coinbaseBuffer);
 
         var merkleRoot = util.reverseBuffer(job.merkleTree.withFirst(coinbaseHash)).toString('hex');
-
         var headerBuffer = job.serializeHeader(merkleRoot, nTime, nonce);
-        var headerHash = hashDigest(headerBuffer, nTimeInt);
-        var headerBigNum = bignum.fromBuffer(headerHash, {endian: 'little', size: 32});
+        /* var headerHash = hashDigest(headerBuffer, nTimeInt);
+        var headerBigNum = bignum.fromBuffer(headerHash, {endian: 'little', size: 32}); */
+        var patterns = job.rpcData.patterns;
+        var patternsBuffer = Buffer.alloc(2);
+        var patternLength = patterns[0].length;
+        patternsBuffer.writeUInt8(patterns.length, 0);
+        patternsBuffer.writeUInt8(patternLength, 1);
+        for (var i = 0 ; i < patterns.length ; i++) {
+            var pattern = patterns[i];
+            var patternBuffer = Buffer.alloc(patternLength);
+            for (var j = 0 ; j < patternLength ; j++)
+                 patternBuffer.writeUInt8(pattern[j], j);
+            patternsBuffer = Buffer.concat([patternsBuffer, patternBuffer]);
+        }
+        var powBuffer = Buffer.alloc(4);
+        powBuffer.writeInt32LE(job.rpcData.powversion, 0);
+        powBuffer = Buffer.concat([headerBuffer, powBuffer]);
+        powBuffer = Buffer.concat([powBuffer, patternsBuffer]);
 
         var blockHashInvalid;
         var blockHash;
         var blockHex;
 
-        var shareDiff = diff1 / headerBigNum.toNumber() * shareMultiplier;
+        // var shareDiff = diff1 / headerBigNum.toNumber() * shareMultiplier;
+        var shareDiff = bignum.fromBuffer(hashDigest(powBuffer, nTimeInt), {endian: 'little', size: 32}).toNumber();
 
         var blockDiffAdjusted = job.difficulty * shareMultiplier;
 
         //Check if share is a block candidate (matched network difficulty)
-        if (job.target.ge(headerBigNum)){
+        // if (job.target.ge(headerBigNum)) {
+        if (shareDiff >= patternLength) {
             blockHex = job.serializeBlock(headerBuffer, coinbaseBuffer).toString('hex');
-            blockHash = blockHasher(headerBuffer, nTime).toString('hex');
+            blockHash = blockHasher(headerBuffer, job.rpcData.powversion).toString('hex');
         }
         else {
             if (options.emitInvalidBlockHashes)
                 blockHashInvalid = util.reverseBuffer(util.sha256d(headerBuffer)).toString('hex');
 
             //Check if share didn't reached the miner's difficulty)
-            if (shareDiff / difficulty < 0.99){
+            /*if (shareDiff / difficulty < 0.99){
 
                 //Check if share matched a previous difficulty from before a vardiff retarget
                 if (previousDifficulty && shareDiff >= previousDifficulty){
@@ -216,6 +247,9 @@ var JobManager = module.exports = function JobManager(options){
                     return shareError([23, 'low difficulty share of ' + shareDiff]);
                 }
 
+            }*/
+            if (shareDiff < this.currentDifficulty()) {
+                return shareError([23, 'too short share prime count ' + shareDiff + ' (must be >= ' + this.currentDifficulty() + ')']);
             }
         }
 

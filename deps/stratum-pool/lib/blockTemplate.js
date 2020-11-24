@@ -84,7 +84,7 @@ var BlockTemplate = module.exports = function BlockTemplate(jobId, rpcData, pool
     };
 
 
-    //https://en.bitcoin.it/wiki/Protocol_specification#Block_Headers
+    /* // https://en.bitcoin.it/wiki/Protocol_specification#Block_Headers
     this.serializeHeader = function(merkleRoot, nTime, nonce){
 
         var header =  Buffer.alloc(80);
@@ -93,6 +93,19 @@ var BlockTemplate = module.exports = function BlockTemplate(jobId, rpcData, pool
         header.write(rpcData.bits, position += 4, 4, 'hex');
         header.write(nTime, position += 4, 4, 'hex');
         header.write(merkleRoot, position += 4, 32, 'hex');
+        header.write(rpcData.previousblockhash, position += 32, 32, 'hex');
+        header.writeUInt32BE(rpcData.version, position + 32);
+        var header = util.reverseBuffer(header);
+        return header;
+    };*/
+
+    this.serializeHeader = function(merkleRoot, nTime, nOffset) {
+        var header =  Buffer.alloc(112);
+        var position = 0;
+        header.write(nOffset, position, 32, 'hex');
+        header.write(rpcData.bits, position += 32, 4, 'hex');
+        header.write(nTime, position += 4, 8, 'hex');
+        header.write(merkleRoot, position += 8, 32, 'hex');
         header.write(rpcData.previousblockhash, position += 32, 32, 'hex');
         header.writeUInt32BE(rpcData.version, position + 32);
         var header = util.reverseBuffer(header);
@@ -131,7 +144,9 @@ var BlockTemplate = module.exports = function BlockTemplate(jobId, rpcData, pool
                 util.packInt32BE(this.rpcData.version).toString('hex'),
                 this.rpcData.bits,
                 util.packUInt32BE(this.rpcData.curtime).toString('hex'),
-                true
+                true,
+                this.rpcData.powversion,
+                this.rpcData.patterns
             ];
         }
         return this.jobParams;

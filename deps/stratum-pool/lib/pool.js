@@ -102,9 +102,13 @@ var pool = module.exports = function pool(options, authorizeFn){
                 'Detected Reward Type:\t' + options.coin.reward,
                 'Current Block Height:\t' + _this.jobManager.currentJob.rpcData.height,
                 'Current Connect Peers:\t' + options.initStats.connections,
-                'Current Block Diff:\t' + _this.jobManager.currentJob.difficulty * algos[options.coin.algorithm].multiplier,
+                //'Current Block Diff:\t' + _this.jobManager.currentJob.difficulty * algos[options.coin.algorithm].multiplier,
+                'Min Share Prime Count:\t' + _this.jobManager.currentDifficulty(),
+                'PoW Version:          \t' + _this.jobManager.currentJob.rpcData.powversion,
+                'Constellations:       \t' + JSON.stringify(_this.jobManager.currentJob.rpcData.patterns) + ' (length ' + _this.jobManager.currentJob.rpcData.patterns[0].length + ')',
                 'Network Difficulty:\t' + options.initStats.difficulty,
-                'Network Hash Rate:\t' + util.getReadableHashRateString(options.initStats.networkHashRate),
+                // 'Network Hash Rate:\t' + util.getReadableHashRateString(options.initStats.networkHashRate),
+                'Network Mining Power:\t' + options.initStats.networkHashRate.toFixed(3),
                 'Stratum Port(s):\t' + _this.options.initStats.stratumPorts.join(', '),
                 'Pool Fee Percent:\t' + _this.options.feePercent + '%'
         ];
@@ -423,8 +427,10 @@ var pool = module.exports = function pool(options, authorizeFn){
 
             options.initStats = {
                 connections: (options.coin.hasGetInfo ? rpcResults.getinfo.connections : rpcResults.getnetworkinfo.connections),
-                difficulty: difficulty * algos[options.coin.algorithm].multiplier,
-                networkHashRate: rpcResults.getmininginfo.networkhashps
+                /*difficulty: difficulty * algos[options.coin.algorithm].multiplier,
+                networkHashRate: rpcResults.getmininginfo.networkhashps*/
+                difficulty: difficulty,
+                networkHashRate: rpcResults.getmininginfo.networkminingpower
             };
 
 
@@ -479,11 +485,14 @@ var pool = module.exports = function pool(options, authorizeFn){
                     extraNonce2Size
                 );
 
-                if (typeof(options.ports[client.socket.localPort]) !== 'undefined' && options.ports[client.socket.localPort].diff) {
+                /*if (typeof(options.ports[client.socket.localPort]) !== 'undefined' && options.ports[client.socket.localPort].diff) {
                     this.sendDifficulty(options.ports[client.socket.localPort].diff);
                 } else {
                     this.sendDifficulty(8);
-                }
+                }*/
+                if (typeof(options.ports[client.socket.localPort]) !== 'undefined' && options.ports[client.socket.localPort].diff)
+                    emitWarningLog('Custom Min Share Prime Count is not implemented.');
+                this.sendDifficulty(_this.jobManager.currentDifficulty());
 
                 this.sendMiningJob(_this.jobManager.currentJob.getJobParams());
 
