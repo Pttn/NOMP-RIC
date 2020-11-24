@@ -1,0 +1,86 @@
+{
+	"enabled": true, // Set this to false and a pool will not be created from this config file
+	"coin": "RiecoinTestnet.json", // Reference to coin config file in 'coins' directory
+	"address": "tric1qr3yxckxtl7lacvtuzhrdrtrlzvlydanea9jhph", // Address to where block rewards are given
+	
+	/* Block rewards go to the configured pool wallet address to later be paid out to miners,
+	   except for a percentage that can go to, for examples, pool operator(s) as pool fees or
+	   or to donations address. */
+	"rewardRecipients": {
+		"tric1qr3yxckxtl7lacvtuzhrdrtrlzvlydanea9jhph": 1
+	},
+	
+	"paymentProcessing": {
+		"enabled": true,
+		
+		/* Every this many seconds get submitted blocks from redis, use daemon RPC to check
+		   their confirmation status, if confirmed then get shares from redis that contributed
+		   to block and send out payments. */
+		"paymentInterval": 300,
+		
+		/* Minimum number of coins that a miner must earn before sending payment. Typically,
+		   a higher minimum means less transactions fees (you profit more) but miners see
+		   payments less frequently (they dislike). Opposite for a lower minimum payment. */
+		"minimumPayment": 1,
+		
+		/* This daemon is used to send out payments. It MUST be for the daemon that owns the
+		   configured 'address' that receives the block rewards, otherwise the daemon will not
+		   be able to confirm blocks or send out payments. */
+		"daemon": {
+			"host": "127.0.0.1",
+			"port": 38332,
+			"user": "rpcuser",
+			"password": "rpcpassword"
+		}
+	},
+	
+	/* Each pool can have as many ports for your miners to connect to as you wish. */
+	"ports": {
+		"3003": { // A port for your miners to connect to
+		},
+		"3004": { // Another port for your miners to connect to
+		}
+	},
+	
+	/* More than one daemon instances can be setup in case one drops out-of-sync or dies. */
+	"daemons": [
+		{   // Main daemon instance
+			"host": "127.0.0.1",
+			"port": 38332,
+			"user": "rpcuser",
+			"password": "rpcpassword"
+		}
+	],
+	
+	/* This allows the pool to connect to the daemon as a node peer to receive block updates.
+	   It may be the most efficient way to get block updates (faster than polling, less
+	   intensive than blocknotify script). It requires the additional field "peerMagic" in
+	   the coin config. */
+	"p2p": {
+		"enabled": false,
+		"host": "127.0.0.1",
+		"port": 38333,
+		/* Uses a P2P feature that prevents the daemon from spamming our peer node with unnecessary
+		   transaction data. If you have problems try disabling it. */
+		"disableTransactions": true
+	},
+	
+	/* Enabled this mode and shares will be inserted into in a MySQL database. You may also want
+	   to use the "emitInvalidBlockHashes" option below if you require it. The config options
+	   "redis" and "paymentProcessing" will be ignored/unused if this is enabled. */
+	"mposMode": {
+		"enabled": false,
+		"host": "127.0.0.1", // MySQL db host
+		"port": 3306, // MySQL db port
+		"user": "me", // MySQL db user
+		"password": "mypass", // MySQL db password
+		"database": "RICT", // MySQL db database name
+		
+		/* Checks for valid password in database when miners connect. */
+		"checkPassword": true,
+		
+		/* Unregistered workers can automatically be registered (added to database) on stratum
+		   worker authentication if this is true. */
+		"autoCreateWorker": false
+	}
+}
