@@ -88,7 +88,7 @@ module.exports = function(logger){
                 else {
                     if (workerName.length === 40) {
                         try {
-                            new Buffer(workerName, 'hex');
+                            Buffer.from(workerName, 'hex');
                             authCallback(true);
                         }
                         catch (e) {

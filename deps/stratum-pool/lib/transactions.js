@@ -55,7 +55,7 @@ if (rpcData.payee) {
     ]));
     
     if (rpcData.default_witness_commitment !== undefined){
-        witness_commitment = new Buffer(rpcData.default_witness_commitment, 'hex');
+        witness_commitment = Buffer.from(rpcData.default_witness_commitment, 'hex');
         txOutputBuffers.unshift(Buffer.concat([
             util.packInt64LE(0),
             util.varIntBuffer(witness_commitment.length),
@@ -81,19 +81,19 @@ exports.CreateGeneration = function(rpcData, publicKey, extraNoncePlaceholder, r
     var txInPrevOutHash = "";
     var txInPrevOutIndex = Math.pow(2, 32) - 1;
     var txInSequence = 0;
-    var txTimestamp = new Buffer([]);
+    var txTimestamp = Buffer.from([]);
 
     //For coins that support/require transaction comments
     var txComment = txMessages === true ?
         util.serializeString('https://github.com/Pttn/NOMP-RIC') :
-        new Buffer([]);
+        Buffer.from([]);
 
 
     var scriptSigPart1 = Buffer.concat([
         util.serializeNumber(rpcData.height),
-        new Buffer([]),
+        Buffer.from([]),
         util.serializeNumber(Date.now() / 1000 | 0),
-        new Buffer([extraNoncePlaceholder.length])
+        Buffer.from([extraNoncePlaceholder.length])
     ]);
 
     var scriptSigPart2 = util.serializeString('/NOMP-RIC/');
