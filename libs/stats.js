@@ -206,8 +206,9 @@ module.exports = function(logger, portalConfig, poolConfigs){
                     }
                 });
 
-                var shareMultiplier = Math.pow(2, 32) / algos[coinStats.algorithm].multiplier;
-                coinStats.hashrate = shareMultiplier * coinStats.shares / portalConfig.website.stats.hashrateWindow;
+                /*var shareMultiplier = Math.pow(2, 32) / algos[coinStats.algorithm].multiplier;
+                coinStats.hashrate = shareMultiplier * coinStats.shares / portalConfig.website.stats.hashrateWindow;*/
+                coinStats.hashrate = coinStats.shares/portalConfig.website.stats.hashrateWindow;
 
                 coinStats.workerCount = Object.keys(coinStats.workers).length;
                 portalStats.global.workers += coinStats.workerCount;
@@ -225,17 +226,20 @@ module.exports = function(logger, portalConfig, poolConfigs){
                 portalStats.algos[algo].workers += Object.keys(coinStats.workers).length;
 
                 for (var worker in coinStats.workers) {
-                    coinStats.workers[worker].hashrateString = _this.getReadableHashRateString(shareMultiplier * coinStats.workers[worker].shares / portalConfig.website.stats.hashrateWindow);
+                    // coinStats.workers[worker].hashrateString = _this.getReadableHashRateString(shareMultiplier * coinStats.workers[worker].shares / portalConfig.website.stats.hashrateWindow);
+                    coinStats.workers[worker].hashrateString = (coinStats.workers[worker].shares/portalConfig.website.stats.hashrateWindow).toFixed(3);
                 }
 
                 delete coinStats.hashrates;
                 delete coinStats.shares;
-                coinStats.hashrateString = _this.getReadableHashRateString(coinStats.hashrate);
+                // coinStats.hashrateString = _this.getReadableHashRateString(coinStats.hashrate);
+                coinStats.hashrateString = coinStats.hashrate.toFixed(3);
             });
 
             Object.keys(portalStats.algos).forEach(function(algo){
                 var algoStats = portalStats.algos[algo];
-                algoStats.hashrateString = _this.getReadableHashRateString(algoStats.hashrate);
+                // algoStats.hashrateString = _this.getReadableHashRateString(algoStats.hashrate);
+                algoStats.hashrateString = algoStats.hashrate.toFixed(3);
             });
 
             _this.stats = portalStats;

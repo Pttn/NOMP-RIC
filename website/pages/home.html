@@ -5,19 +5,24 @@
 <h2>How to mine</h2>
 <p>Put your pool settings here (mining URL, port,...).</p>
 <p><a href="https://riecoin.dev/en/rieMiner/">rieMiner's page</a> (<a href="https://riecoin.dev/en/rieMiner/Pooled_Mining">pooled mining guide</a>, <a href="https://riecoin.dev/en/rieMiner/Benchmarks">benchmarks</a>)</p>
-<p>...</p>
-<h2>Algorithms</h2>
-<ul>
-	{{ for(var algo in it.stats.algos) { }}
-	<li>{{=algo}}: {{=it.stats.algos[algo].workers}} miners, {{=it.stats.algos[algo].hashrateString}}</li>
-	{{ } }}
-</ul>
-<h2>Pools/Coins</h2>
-<ul>
+<h2>Pools</h2>
+<table style="width: 50%;">
+	<thead>
+		<tr style="text-align: left;">
+			<th>Pool</th>
+			<th>Miners</th>
+			<th>Shares/s</th>
+		</tr>
+	</thead>
 	{{ for(var pool in it.stats.pools) { }}
-	<li>{{=pool}}: {{=it.stats.pools[pool].workerCount}} miners, {{=it.stats.pools[pool].hashrateString}}</li>
+	<tr>
+		<td>{{=pool}}</td>
+		<td>{{=it.stats.pools[pool].workerCount}}</td>
+		<td>{{=it.stats.pools[pool].hashrateString}}</td>
+	</tr>
 	{{ } }}
-</ul>
+</table>
+
 <script>
 	$(function() {
 		statsSource.addEventListener('message', function (e) {

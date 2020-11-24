@@ -12,7 +12,7 @@
 			<th>Pending</th>
 			<th>Confirmed</th>
 			<th>Orphaned</th>
-			<th>Hashrate</th>
+			<th>Shares/s</th>
 		</tr>
 	</thead>
 	{{ for(var pool in it.stats.pools) { }}
@@ -41,7 +41,7 @@
 			<th>Shares</th>
 			<th>Invalid shares</th>
 			<th>Efficiency</th>
-			<th>Hashrate</th>
+			<th>Shares/s</th>
 		</tr>
 	</thead>
 	{{ for(var worker in it.stats.pools[pool].workers) { }}
