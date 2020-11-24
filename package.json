@@ -31,23 +31,23 @@
     },
     "dependencies": {
         "stratum-pool": "file:deps/stratum-pool",
-        "dateformat": "1.0.12",
+        "dateformat": "*",
         "node-json-minify": "*",
-        "redis": "0.12.1",
+        "redis": "*",
         "mysql": "*",
-        "async": "1.5.2",
+        "async": "*",
         "express": "*",
         "body-parser": "*",
         "compression": "*",
         "dot": "*",
         "colors": "*",
-        "node-watch": "0.5.9",
-        "request": "2.69.0",
+        "node-watch": "*",
+        "request": "*",
         "nonce": "*",
-        "bignum": "0.12.5",
+        "bignum": "*",
         "extend": "*"
     },
     "engines": {
-        "node": ">=0.10"
+        "node": ">=10.21.0"
     }
 }
