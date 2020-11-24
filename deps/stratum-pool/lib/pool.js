@@ -282,7 +282,8 @@ var pool = module.exports = function pool(options, authorizeFn){
                 if (r.length === 40)
                     rObj.script = util.miningKeyToScript(r);
                 else
-                    rObj.script = util.addressToScript(r);
+                    // rObj.script = util.addressToScript(r);
+                    _this.daemon.GetScriptPubKey(r, function(result) {rObj.script = Buffer.from(result, 'hex');})
                 recipients.push(rObj);
                 options.feePercent += percent;
             }
@@ -412,9 +413,10 @@ var pool = module.exports = function pool(options, authorizeFn){
                 options.coin.reward = 'POW';
             }
 
-            options.poolAddressScript = (function(){
+            /*options.poolAddressScript = (function(){
                 return util.addressToScript(rpcResults.validateaddress.address);
-            })();
+            })();*/
+            _this.daemon.GetScriptPubKey(rpcResults.validateaddress.address, function(result) {options.poolAddressScript = Buffer.from(result, 'hex');})
 
             options.testnet = options.coin.hasGetInfo ? rpcResults.getinfo.testnet : (rpcResults.getblockchaininfo.chain === 'test') ? true : false;
 

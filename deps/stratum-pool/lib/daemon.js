@@ -178,12 +178,32 @@ function DaemonInterface(daemons, logger){
 
     }
 
+    function GetScriptPubKey(address, callback) {
+        this.cmd(
+            'validateaddress',
+            [address],
+            function(results) {
+                result = results[0];
+                if (result.error) {
+                    logger('error', 'validateaddress call for scriptPubKey retrieval failed for daemon instance ' + result.instance.index + ' with error ' + JSON.stringify(result.error));
+                    callback('00140000000000000000000000000000000000000000');
+                }
+                else if (!result.response.isvalid) {
+                    logger('error', 'Invalid address ' + address + '!');
+                    callback('00140000000000000000000000000000000000000000');
+                }
+                else
+                    callback(result.response.scriptPubKey);
+            }
+        );
+    }
 
     //public members
 
     this.init = init;
     this.isOnline = isOnline;
     this.cmd = cmd;
+    this.GetScriptPubKey = GetScriptPubKey;
     this.batchCmd = batchCmd;
 }
 
