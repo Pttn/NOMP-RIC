@@ -376,8 +376,13 @@ function SetupForPool(logger, poolOptions, setupFinished){
                         var toSend = (worker.balance + worker.reward) * (1 - withholdPercent);
                         if (toSend >= minPaymentSatoshis) {
                             totalSent += toSend;
-                            var address = worker.address = (worker.address || getProperAddress(w));
-                            worker.sent = addressAmounts[address] = satoshisToCoins(toSend);
+                            var address = worker.address = (worker.address || getProperAddress(w)).trim();
+                            if (!worker.sent)
+                                worker.sent = 0;
+                            worker.sent += satoshisToCoins(toSend);
+                            if (!(address in addressAmounts))
+                                addressAmounts[address] = 0;
+                            addressAmounts[address] += satoshisToCoins(toSend);
                             worker.balanceChange = Math.min(worker.balance, toSend) * -1;
                         }
                         else {
