@@ -78,12 +78,8 @@ var JobManager = module.exports = function JobManager(options){
         /*return function () {
             return util.reverseBuffer(hashDigest.apply(this, arguments));
         };*/
-        return function (headerBuffer, powversion) {
-            if (powversion == -1)
-                var headerBufferForHash = Buffer.concat([headerBuffer.slice(0, 68), headerBuffer.slice(76, 80), headerBuffer.slice(68, 76), headerBuffer.slice(80, 112)]); // The hash is done after swapping nTime and nBits
-            else
-                var headerBufferForHash = headerBuffer;
-            return util.reverseBuffer(util.sha256d(headerBufferForHash));
+        return function (headerBuffer) {
+            return util.reverseBuffer(util.sha256d(headerBuffer));
         };
     })();
 
@@ -230,7 +226,7 @@ var JobManager = module.exports = function JobManager(options){
         // if (job.target.ge(headerBigNum)) {
         if (shareDiff >= patternLength) {
             blockHex = job.serializeBlock(headerBuffer, coinbaseBuffer).toString('hex');
-            blockHash = blockHasher(headerBuffer, job.rpcData.powversion).toString('hex');
+            blockHash = blockHasher(headerBuffer).toString('hex');
         }
         else {
             if (options.emitInvalidBlockHashes)
