@@ -58,7 +58,7 @@ var JobManager = module.exports = function JobManager(options){
     //public members
 
     this.extraNonceCounter = new ExtraNonceCounter(options.instanceId);
-    this.extraNoncePlaceholder = Buffer.from('f000000ff111111f', 'hex');
+    this.extraNoncePlaceholder = Buffer.from('1111111122', 'hex');
     this.extraNonce2Size = this.extraNoncePlaceholder.length - this.extraNonceCounter.size;
 
     this.currentJob;
