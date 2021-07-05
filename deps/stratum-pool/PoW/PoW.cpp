@@ -1,13 +1,14 @@
+#include <node.h>
+#include <node_buffer.h>
+#include <nan.h>
 #include <array>
 #include <vector>
 #include <gmp.h>
 #include <gmpxx.h>
 #include <openssl/sha.h>
 #include <cassert>
-#include "stella.h"
 
 // Essentially adapted code from Riecoin Core and rieMiner
-
 inline std::vector<uint8_t> a8ToV8(const std::array<uint8_t, 32> &a8) {
 	return std::vector<uint8_t>(a8.begin(), a8.end());
 }
@@ -141,3 +142,34 @@ int GetSharePrimeCount(const uint8_t *rawBlockHeader, const int32_t powVersion, 
 	}
 	return longestSharePrimeCount;
 }
+
+NAN_METHOD(stella) {
+	if (info.Length() < 1)
+		Nan::ThrowError("You must provide a buffer containing the Block Header and Constellation Data");
+
+	v8::Local<v8::Object> target = Nan::To<v8::Object>(info[0]).ToLocalChecked();
+	if(!node::Buffer::HasInstance(target))
+		Nan::ThrowError("Argument should be a buffer object.");
+
+	const uint8_t *input(reinterpret_cast<const uint8_t*>(node::Buffer::Data(target)));
+	char output[32]{0};
+	int32_t powVersion(reinterpret_cast<const int32_t*>(&input[112])[0]);
+	std::vector<std::vector<int32_t>> constellationsOffsets(input[116]);
+	uint32_t constellationLength(input[117]);
+	int32_t pos(118);
+	for (uint32_t i(0) ; i < constellationsOffsets.size() ; i++) {
+		std::vector<int32_t> constellationOffsets(constellationLength);
+		for (uint32_t j(0) ; j < constellationOffsets.size() ; j++) {
+			constellationOffsets[j] = input[pos];
+			pos++;
+		}
+		constellationsOffsets[i] = constellationOffsets;
+	}
+	info.GetReturnValue().Set(GetSharePrimeCount(input, powVersion, constellationsOffsets));
+}
+
+NAN_MODULE_INIT(init) {
+	NAN_EXPORT(target, stella);
+}
+
+NODE_MODULE(PoW, init)

@@ -1,10 +1,9 @@
 {
     "targets": [
         {
-            "target_name": "multihashing",
+            "target_name": "PoW",
             "sources": [
-                "src/multihashing.cc",
-                "src/stella.cpp"
+                "PoW.cpp"
             ],
             "include_dirs": [
                 "<!(node -e \"require('nan')\")"

@@ -1,0 +1,20 @@
+{
+	"name": "PoW",
+	"version": "1.0.0",
+	"author": {
+		"name": "Pttn"
+	},
+	"scripts": {
+		"build": "node-gyp rebuild"
+	},
+	"dependencies": {
+		"bindings": "*",
+		"nan": "*"
+	},
+	"keywords": [
+		"PoW",
+		"Riecoin",
+		"Stella",
+		"Prime Constellations"
+	]
+}

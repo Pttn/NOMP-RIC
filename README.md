@@ -1,12 +1,8 @@
 # Node Open Mining Portal for Riecoin (NOMP-RIC)
 
-This is a fork of [zone117x/node-open-mining-portal](https://github.com/zone117x/node-open-mining-portal), adapted to support the latest Riecoin Core versions (including Testnet network). It can either be used as a base to create new Riecoin NOMP pools, or to update current ones by porting changes from this repository.
+This repository provides code to power a Riecoin Pool. It is based on [zone117x/node-open-mining-portal](https://github.com/zone117x/node-open-mining-portal) and its dependency [zone117x/node-stratum-pool](https://github.com/zone117x/node-stratum-pool), though everything was refactored and simplified to allow better maintenance and improvement of the code. If you need code more similar to the original NOMP, please use the [Legacy](https://github.com/Pttn/NOMP-RIC/tree/Legacy) branch. Also note that not all features from the original code have been ported or tested, though NOMP-RIC should still satisfy the needs of most people. Pull Requests are welcomed if you wish to port or fix something.
 
-A fork of [zone117x/node-stratum-pool](https://github.com/zone117x/node-stratum-pool) adapted for Riecoin is also included in this repository (rather than being in another GitHub repository), as well as a stripped down version of [zone117x/node-multi-hashing](https://github.com/zone117x/node-multi-hashing).
-
-You might want to read the READMEs of the original repositories in addition to this one. NOMP-RIC has been cleaned up (in particular, the coin switching feature and all the other coins were removed), though it should be easy to restore or add any feature or another coin if needed.
-
-If you have trouble using this software, you can always ask a Riecoin Pool Operator in [Discord](https://discord.gg/2sJEayC), they will be glad to help you. However, you are also expected to have decent abilities and to be autonomous; if you cannot follow the instructions below or get stuck every time an error message appear, then you are certainly not ready to operate a pool.
+If you have trouble using this software, you can always ask in the [Riecoin Forum](https://forum.riecoin.dev/viewforum.php?f=14) and experienced users will be glad to help you. However, you are also expected to have decent abilities and to be autonomous; if you cannot follow the instructions below or get stuck every time an error message appears, then you are certainly not ready to operate a pool.
 
 ## Instructions
 
@@ -31,9 +27,7 @@ port=38333
 rpcbind=127.0.0.1
 ```
 
-You will need an address (block rewards will be sent there before being redistributed to miners) for each pool. And of course, the synchronization must be done, etc. The pool's payment processor may also require a fallback fee (especially for Testnet), in this case start using for example `-fallbackfee=0.0001`.
-
-Once you are ready, start Riecoin Core.
+Once you are ready, start Riecoin Core (Mainnet, Testnet, or both, depending on your goal). If needed, create a new wallet and generate an address where block rewards will be sent before being redistributed to miners. Of course, make sure that the synchronization is done.
 
 ### Dependencies
 

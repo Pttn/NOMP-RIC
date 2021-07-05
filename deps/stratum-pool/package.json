@@ -1,34 +1,33 @@
 {
-    "name": "stratum-pool",
-    "version": "0.1.9",
-    "description": "High performance Stratum poolserver in Node.js",
-    "keywords": [
-        "stratum",
-        "mining",
-        "pool",
-        "server",
-        "poolserver",
-        "Riecoin"
-    ],
-    "homepage": "https://github.com/Pttn/NOMP-RIC",
-    "bugs": {
-        "url": "https://github.com/Pttn/NOMP-RIC/issues"
-    },
-    "license": "GPL-2.0",
-    "author": "Matthew Little",
-    "contributors": [
-        "vekexasia",
-        "TheSeven",
-        "Pttn"
-    ],
-    "main": "lib/index.js",
-    "dependencies": {
-        "multi-hashing": "file:dep/multi-hashing",
-        "bignum": "*",
-        "base58-native": "*",
-        "async": "*"
-    },
-    "engines": {
-        "node": ">=10.21.0"
-    }
+	"name": "stratum-pool",
+	"version": "0.1.9",
+	"description": "High performance Stratum poolserver in Node.js",
+	"keywords": [
+		"stratum",
+		"mining",
+		"pool",
+		"server",
+		"poolserver",
+		"Riecoin"
+	],
+	"homepage": "https://github.com/Pttn/NOMP-RIC",
+	"bugs": {
+		"url": "https://github.com/Pttn/NOMP-RIC/issues"
+	},
+	"license": "GPL-2.0",
+	"author": "Matthew Little",
+	"contributors": [
+		"vekexasia",
+		"TheSeven",
+		"Pttn"
+	],
+	"main": "lib/index.js",
+	"dependencies": {
+		"PoW": "file:PoW",
+		"base58-native": "*",
+		"async": "*"
+	},
+	"engines": {
+		"node": ">=10.21.0"
+	}
 }
